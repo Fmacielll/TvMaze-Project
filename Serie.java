@@ -1,8 +1,11 @@
 package Prova_2tri;
 
 import java.util.List;
+import java.util.Objects;
+import java.io.Serializable;
 
-public class Serie {
+
+public class Serie implements Serializable {
     private int id;
     private String nome;
     private String idioma;
@@ -34,6 +37,17 @@ public class Serie {
     public String getDataEstreia() { return dataEstreia; }
     public String getDataFim() { return dataFim; }
     public String getEmissora() { return emissora; }
+
+public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Serie)) return false;
+        Serie serie = (Serie) o;
+        return nome.equalsIgnoreCase(serie.nome);
+    }
+
+    public int hashCode() {
+        return Objects.hash(nome.toLowerCase());
+    }
 
     @Override
     public String toString() {

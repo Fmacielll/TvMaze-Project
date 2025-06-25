@@ -21,38 +21,75 @@ public class SerieManager {
             for (int i = 0; i < resultados.size(); i++) {
                 System.out.printf("%d. %s\n", i + 1, resultados.get(i).getNome());
             }
-            System.out.print("Ver detalhes de qual série (0 para cancelar)? ");
-            int idx = Integer.parseInt(sc.nextLine()) - 1;
-            if (idx >= 0 && idx < resultados.size()) {
-                Serie s = resultados.get(idx);
-                System.out.println("\nDetalhes da série:");
-                System.out.println(s);
-                menuAdicionarSerie(sc, s);
+            while (true) {
+                System.out.print("Ver detalhes de qual série (0 para cancelar)? ");
+                String input = sc.nextLine();
+                try {
+                    int idx = Integer.parseInt(input) - 1;
+                    if (idx == -1) {
+                        break;
+                    }
+                    if (idx >= 0 && idx < resultados.size()) {
+                        Serie s = resultados.get(idx);
+                        System.out.println("\nDetalhes da série:");
+                        System.out.println(s);
+                        menuAdicionarSerie(sc, s);
+                        break; // Sai do loop após mostrar detalhes
+                    } else {
+                        System.out.println("Opção inválida, tente novamente.");
+                    }
+                } catch (Exception e) {
+                    System.out.println("Opção inválida, tente novamente.");
+                }
             }
         } catch (Exception e) {
-            System.out.println("Erro na busca: " + "Verifique sua conexao com a internet.");
+            System.out.println("Erro na busca: Verifique sua conexão com a internet.");
         }
     }
 
     private void menuAdicionarSerie(Scanner sc, Serie s) {
-        System.out.println("1. Adicionar aos favoritos");
-        System.out.println("2. Adicionar a já assistidas");
-        System.out.println("3. Adicionar a deseja assistir");
-        System.out.println("0. Voltar");
-        System.out.print("Escolha: ");
-        int op = Integer.parseInt(sc.nextLine());
-        switch (op) {
-            case 1:
-                if (!user.getFavoritos().contains(s)) user.getFavoritos().add(s);
-                break;
-            case 2:
-                if (!user.getAssistidas().contains(s)) user.getAssistidas().add(s);
-                break;
-            case 3:
-                if (!user.getDesejaAssistir().contains(s)) user.getDesejaAssistir().add(s);
-                break;
-            default:
-                break;
+        while (true) {
+            System.out.println("1. Adicionar aos favoritos");
+            System.out.println("2. Adicionar a já assistidas");
+            System.out.println("3. Adicionar a deseja assistir");
+            System.out.println("0. Voltar");
+            System.out.print("Escolha: ");
+            String input = sc.nextLine();
+            try {
+                int op = Integer.parseInt(input);
+                switch (op) {
+                    case 1:
+                        if (user.getFavoritos().contains(s)) {
+                            System.out.println("A série já está na lista de favoritos!");
+                        } else {
+                            user.getFavoritos().add(s);
+                            System.out.println("Série adicionada aos favoritos.");
+                        }
+                        return;
+                    case 2:
+                        if (user.getAssistidas().contains(s)) {
+                            System.out.println("A série já está na lista de assistidas!");
+                        } else {
+                            user.getAssistidas().add(s);
+                            System.out.println("Série adicionada à lista de assistidas.");
+                        }
+                        return;
+                    case 3:
+                        if (user.getDesejaAssistir().contains(s)) {
+                            System.out.println("A série já está na lista de deseja assistir!");
+                        } else {
+                            user.getDesejaAssistir().add(s);
+                            System.out.println("Série adicionada à lista de deseja assistir.");
+                        }
+                        return;
+                    case 0:
+                        return;
+                    default:
+                        System.out.println("Opção inválida, tente novamente.");
+                }
+            } catch (Exception e) {
+                System.out.println("Opção inválida, tente novamente.");
+            }
         }
     }
 
@@ -62,26 +99,42 @@ public class SerieManager {
             System.out.println("Lista vazia.");
             return;
         }
-        exibirLista(lista);
-        System.out.println("1. Remover série");
-        System.out.println("2. Ordenar lista");
-        System.out.println("0. Voltar");
-        System.out.print("Escolha: ");
-        int op = Integer.parseInt(sc.nextLine());
-        switch (op) {
-            case 1:
-                System.out.print("Índice da série para remover: ");
-                int idx = Integer.parseInt(sc.nextLine()) - 1;
-                if (idx >= 0 && idx < lista.size()) {
-                    lista.remove(idx);
-                    System.out.println("Removido.");
+        exibirLista(lista, sc);
+        while (true) {
+            System.out.println("1. Remover série");
+            System.out.println("2. Ordenar lista");
+            System.out.println("0. Voltar");
+            System.out.print("Escolha: ");
+            String input = sc.nextLine();
+            try {
+                int op = Integer.parseInt(input);
+                switch (op) {
+                    case 1:
+                        System.out.print("Índice da série para remover: ");
+                        String idxInput = sc.nextLine();
+                        try {
+                            int idx = Integer.parseInt(idxInput) - 1;
+                            if (idx >= 0 && idx < lista.size()) {
+                                lista.remove(idx);
+                                System.out.println("Removido.");
+                            } else {
+                                System.out.println("Opção inválida, tente novamente.");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Opção inválida, tente novamente.");
+                        }
+                        break;
+                    case 2:
+                        ordenarLista(sc, lista);
+                        break;
+                    case 0:
+                        return;
+                    default:
+                        System.out.println("Opção inválida, tente novamente.");
                 }
-                break;
-            case 2:
-                ordenarLista(sc, lista);
-                break;
-            default:
-                break;
+            } catch (Exception e) {
+                System.out.println("Opção inválida, tente novamente.");
+            }
         }
     }
 
@@ -94,43 +147,65 @@ public class SerieManager {
         }
     }
 
-    private void exibirLista(List<Serie> lista) {
+    private void exibirLista(List<Serie> lista, Scanner sc) {
         for (int i = 0; i < lista.size(); i++) {
             Serie s = lista.get(i);
             System.out.printf("%d. %s\n", i + 1, s.getNome());
         }
-        System.out.print("Ver detalhes de qual série (0 para pular)? ");
-        Scanner sc = new Scanner(System.in);
-        int idx = Integer.parseInt(sc.nextLine()) - 1;
-        if (idx >= 0 && idx < lista.size()) {
-            System.out.println(lista.get(idx));
+        while (true) {
+            System.out.print("Ver detalhes de qual série (0 para pular)? ");
+            String input = sc.nextLine();
+            try {
+                int idx = Integer.parseInt(input) - 1;
+                if (idx == -1) {
+                    break;
+                }
+                if (idx >= 0 && idx < lista.size()) {
+                    System.out.println(lista.get(idx));
+                    break;
+                } else {
+                    System.out.println("Opção inválida, tente novamente.");
+                }
+            } catch (Exception e) {
+                System.out.println("Opção inválida, tente novamente.");
+            }
         }
     }
 
     private void ordenarLista(Scanner sc, List<Serie> lista) {
-        System.out.println("Ordenar por:");
-        System.out.println("1. Nome (A-Z)");
-        System.out.println("2. Nota geral");
-        System.out.println("3. Estado");
-        System.out.println("4. Data de estreia");
-        System.out.print("Escolha: ");
-        int op = Integer.parseInt(sc.nextLine());
-        switch (op) {
-            case 1:
-                lista.sort(Comparator.comparing(Serie::getNome));
-                break;
-            case 2:
-                lista.sort(Comparator.comparing(Serie::getNota).reversed());
-                break;
-            case 3:
-                lista.sort(Comparator.comparing(Serie::getEstado));
-                break;
-            case 4:
-                lista.sort(Comparator.comparing(Serie::getDataEstreia));
-                break;
-            default:
-                break;
+        while (true) {
+            System.out.println("Ordenar por:");
+            System.out.println("1. Nome (A-Z)");
+            System.out.println("2. Nota geral");
+            System.out.println("3. Estado");
+            System.out.println("4. Data de estreia");
+            System.out.print("Escolha: ");
+            String input = sc.nextLine();
+            try {
+                int op = Integer.parseInt(input);
+                switch (op) {
+                    case 1:
+                        lista.sort(Comparator.comparing(Serie::getNome));
+                        System.out.println("Lista ordenada.");
+                        return;
+                    case 2:
+                        lista.sort(Comparator.comparing(Serie::getNota).reversed());
+                        System.out.println("Lista ordenada.");
+                        return;
+                    case 3:
+                        lista.sort(Comparator.comparing(Serie::getEstado));
+                        System.out.println("Lista ordenada.");
+                        return;
+                    case 4:
+                        lista.sort(Comparator.comparing(Serie::getDataEstreia));
+                        System.out.println("Lista ordenada.");
+                        return;
+                    default:
+                        System.out.println("Opção inválida, tente novamente.");
+                }
+            } catch (Exception e) {
+                System.out.println("Opção inválida, tente novamente.");
+            }
         }
-        System.out.println("Lista ordenada.");
     }
 }
